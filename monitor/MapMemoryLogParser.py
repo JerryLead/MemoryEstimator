@@ -1,12 +1,12 @@
-import MonitorLogParser
+__author__ = 'xulijie'
 
-class MonitorLogParser:
+class MapRecordList:
+    preRecordUsageList = []
+    ingRecordUsageList = []
 
-    # (record, total, preUsed)
-    mapPreRecordUsageList = []
-    # (record, total, ingUsed, gcCount)
-    mapIngRecordUsageList = []
+class MapMemoryLogParser:
 
+    mapRecordList = MapRecordList()
 
     def process(self, line):
         # process map log
@@ -16,21 +16,17 @@ class MonitorLogParser:
             total = long(items[1][items[1].find('=') + 2:])
 
             # record = 600001, total = 168448, used = 106592
-            if items.__len__() == 3:
+            if len(items) == 3:
                 preUsed = long(items[2][items[2].find('=') + 2:])
-                self.mapPreRecordUsageList.append((record, total, preUsed))
+                self.mapRecordList.preRecordUsageList.append((record, total, preUsed))
 
             # record = 600001, total = 168448, used = 106592, gcCount = 65
             else:
                 ingUsed = long(items[2][items[2].find('=') + 2:])
                 gcCount = int(items[3][items[3].find('=') + 2:])
-                self.mapIngRecordUsageList.append((record, total, ingUsed, gcCount))
+                self.mapRecordList.ingRecordUsageList.append((record, total, ingUsed, gcCount))
 
-
-        # process reduce log
-
-
-    def readLog(self, filename):
+    def parseLog(self, filename):
         f = open(filename, 'r')
         while True:
             line = f.readline()
@@ -39,6 +35,8 @@ class MonitorLogParser:
             self.process(line)
         f.close()
 
-        return (self.mapPreRecordUsageList, self.mapIngRecordUsageList)
+        return self.mapRecordList
+
+
 
 
