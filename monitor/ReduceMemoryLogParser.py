@@ -1,18 +1,13 @@
 __author__ = 'xulijie'
 
 class Group:
-    gid = 0
-    totalRecords = 0L
-
-    preRecordsUsageList = []
-    ingRecordsUsageList = []
-    # total = []
 
     def __init__(self, gid):
         self.gid = gid
         self.totalRecords = 0L
         self.preRecordsUsageList = []
         self.ingRecordsUsageList = []
+
 
     def addPreRecordUsage(self, record, total, used):
         self.preRecordsUsageList.append((record, total, used))
@@ -26,8 +21,9 @@ class Group:
 
 class ReduceMemoryLogParser:
 
-    groupList = []
-    currentGroup = Group(0)
+    def __init__(self):
+        self.groupList = []
+        self.currentGroup = Group(0)
 
     def process(self, line):
 

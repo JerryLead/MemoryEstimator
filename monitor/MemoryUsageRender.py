@@ -60,7 +60,7 @@ def plotFirstRecordInEachGroup(ax, firstRecords):
         plt.axvline(x=r, color='lightgray')
 
 
-def plotGroupList(axs, groupList):
+def plotGroupList(ax, groupList):
     preRecords = []
     ingRecords = []
 
@@ -77,36 +77,72 @@ def plotGroupList(axs, groupList):
             ingRecords.append((ir[0] + recordsInPreGroup, ir[1], ir[2], ir[3]))
         recordsInPreGroup += group.totalRecords
 
+    plotFirstRecordInEachGroup(ax, firstRecords)
     plotPreRecords(ax, preRecords)
     #print(preRecords)
     plotIngRecords(ax, ingRecords)
     #print(ingRecords)
-    plotFirstRecordInEachGroup(ax, firstRecords)
 
 
-filename = '/Users/xulijie/Documents/Research/MemoryEstimator/logs/InMemWordCount/mapmemUsage.txt'
-isMapLog = True
+def plotInterGroupList(ax, groupList):
+    preRecords = []
+
+    for group in groupList:
+        pr = group.preRecordsUsageList[0]
+        preRecords.append((group.gid, pr[1], pr[2]))
+
+    plotPreRecords(ax, preRecords)
 
 
-#filename = '/Users/xulijie/Documents/Research/MemoryEstimator/logs/ReduceJoin/memoryusage3.txt'
-#isMapLog = False
 
-ax = initFigure()
+def plot(filename, iterGroup = False):
+    ax = initFigure()
 
-if(isMapLog):
-    parser = mapParser.MapMemoryLogParser()
-    mapRecordList = parser.parseLog(filename)
+    if(filename[filename.rfind("/") + 1:].startswith("m")):
+        parser = mapParser.MapMemoryLogParser(mapBuffer)
+        mapRecordList = parser.parseLog(filename)
 
-    plotPreRecords(ax, mapRecordList.preRecordUsageList)
-    plotIngRecords(ax, mapRecordList.ingRecordUsageList)
+        plotPreRecords(ax, mapRecordList.preRecordUsageList)
+        plotIngRecords(ax, mapRecordList.ingRecordUsageList)
 
-else:
-    parser = reduceParser.ReduceMemoryLogParser()
-    groupList = parser.parseLog(filename)
-    plotGroupList(ax, groupList)
-    
-show(ax)
+    elif(iterGroup == False):
+        parser = reduceParser.ReduceMemoryLogParser()
+        groupList = parser.parseLog(filename)
+        plotGroupList(ax, groupList)
+
+    else:
+        parser = reduceParser.ReduceMemoryLogParser()
+        groupList = parser.parseLog(filename)
+        plotInterGroupList(ax, groupList)
+
+    show(ax)
+
+
+
+
+
+dir = "/Users/xulijie/Documents/MEMR/"
+jobName = "InMemWordCount"
+jobId = "job_201503311659_0007"
+mapBuffer = 400
+
+m0 = dir + jobName + "/" + jobId + "/m0.txt"
+m1 = dir + jobName + "/" + jobId + "/m1.txt"
+r0 = dir + jobName + "/" + jobId + "/r0.txt"
+r1 = dir + jobName + "/" + jobId + "/r1.txt"
+
+plot(m0)
+plot(m1)
+plot(r0, True)
+plot(r0)
+plot(r1, True)
+plot(r1)
+
+
+
 
 
 #ax2.set_ylim(0, 35)
 #ax.set_ylim(-20,100)
+
+
